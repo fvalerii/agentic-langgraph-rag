@@ -1,7 +1,7 @@
 # 🕵️ Agentic Q&A System: LangGraph & Multi-Agent Orchestration
 ### *Autonomous RAG Ecosystem with Self-Correction & Reflection Loops*
 
-![Multi-Agentic RAG](project-overview.jpg)
+![Multi-Agentic RAG](images/project-overview.jpg)
 *Figure 1: High-fidelity multi-agent workflow featuring autonomous routing and verification loops.*
 
 ---

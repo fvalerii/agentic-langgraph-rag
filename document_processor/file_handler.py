@@ -6,21 +6,20 @@ from pathlib import Path
 from typing import List
 from docling.document_converter import DocumentConverter
 from langchain_text_splitters import MarkdownHeaderTextSplitter
-from config import constants
 from config.settings import settings
 from utils.logging import logger
 
 class DocumentProcessor:
     def __init__(self):
         self.headers = [("#", "Header 1"), ("##", "Header 2")]
-        self.cache_dir = Path(settings.CACHE_DIR)
+        self.cache_dir = Path(settings.CACHE.CACHE_DIR)
         self.cache_dir.mkdir(parents=True, exist_ok=True)
         
     def validate_files(self, files: List) -> None:
         """Validate the total size of the uploaded files."""
         total_size = sum(os.path.getsize(f.name) for f in files)
-        if total_size > constants.MAX_TOTAL_SIZE:
-            raise ValueError(f"Total size exceeds {constants.MAX_TOTAL_SIZE//1024//1024}MB limit")
+        if total_size > settings.APP.MAX_TOTAL_SIZE:
+            raise ValueError(f"Total size exceeds {settings.APP.MAX_TOTAL_SIZE//1024//1024}MB limit")
 
     def process(self, files: List) -> List:
         """Process files with caching for subsequent queries"""
@@ -89,4 +88,4 @@ class DocumentProcessor:
             return False
             
         cache_age = datetime.now() - datetime.fromtimestamp(cache_path.stat().st_mtime)
-        return cache_age < timedelta(days=settings.CACHE_EXPIRE_DAYS)
+        return cache_age < timedelta(days=settings.CACHE.CACHE_EXPIRE_DAYS)

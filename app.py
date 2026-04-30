@@ -22,8 +22,8 @@ import os
 from document_processor.file_handler import DocumentProcessor
 from retriever.builder import RetrieverBuilder
 from agents.workflow import AgentWorkflow
-from config import constants, settings
-from utils.logging import logger
+from config import settings
+from utils.logging_config import logger
 
 # 1) Define some example data 
 #    (i.e., question + paths to documents relevant to that question).
@@ -123,7 +123,7 @@ def main():
                 load_example_btn = gr.Button("Load Example 🛠️")
 
                 # Standard input components
-                files = gr.Files(label="📄 Upload Documents", file_types=constants.ALLOWED_TYPES)
+                files = gr.Files(label="📄 Upload Documents", file_types=settings.APP.ALLOWED_TYPES)
                 question = gr.Textbox(label="❓ Question", lines=3)
 
                 submit_btn = gr.Button("Submit 🚀")

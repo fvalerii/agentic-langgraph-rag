@@ -1,9 +1,6 @@
 from loguru import logger
 
 logger.remove()  # remove default handler
-from loguru import logger
-
-logger.remove()
 
 # 1. File logs
 logger.add(

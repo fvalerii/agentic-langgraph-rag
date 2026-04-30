@@ -7,7 +7,7 @@ from typing import List
 from docling.document_converter import DocumentConverter
 from langchain_text_splitters import MarkdownHeaderTextSplitter
 from config.settings import settings
-from utils.logging import logger
+from utils.logging_config import logger
 
 class DocumentProcessor:
     def __init__(self):

@@ -19,11 +19,10 @@ import hashlib
 from typing import List, Dict
 import os
 
-from document_processor.file_handler import DocumentProcessor
-from retriever.builder import RetrieverBuilder
-from agents.workflow import AgentWorkflow
-from config import settings
-from utils.logging_config import logger
+from core import DocumentProcessor, RetrieverBuilder
+from agents import AgentWorkflow
+from config import settings, ALLOWED_TYPES
+from utils import logger
 
 # 1) Define some example data 
 #    (i.e., question + paths to documents relevant to that question).
@@ -102,7 +101,8 @@ def main():
         gr.Markdown("# How it works ✨:", elem_classes="title")
         gr.Markdown("📤 Upload your document(s), enter your query then press Submit 📝", elem_classes="text")
         gr.Markdown("Or you can select one of the examples from the drop-down menu, select Load Example then press Submit 📝", elem_classes="text")
-        gr.Markdown("⚠️ **Note:** DocChat only accepts documents in these formats: '.pdf', '.docx', '.txt', '.md'", elem_classes="text")
+        allowed_str = ", ".join(settings.APP.ALLOWED_TYPES)
+        gr.Markdown(f"⚠️ **Note:** DocChat only accepts: {allowed_str}", elem_classes="text")
 
         # 2) Maintain the session state for retrieving doc changes
         session_state = gr.State({

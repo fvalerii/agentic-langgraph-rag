@@ -1,31 +1,37 @@
-from ibm_watsonx_ai.foundation_models import ModelInference
-from ibm_watsonx_ai import Credentials, APIClient
-from config.settings import settings
-import re
-import logging
+from langchain_ibm import ChatWatsonx
+from pydantic import BaseModel, Field
+from typing import Literal
+from config import settings
+from utils import logger
 
-logger = logging.getLogger(__name__)
-
-credentials = Credentials(
-                   url = "https://us-south.ml.cloud.ibm.com",
-                  )
-client = APIClient(credentials)
+class RelevanceGrade(BaseModel):
+    """Structured output for relevance check."""
+    # We keep the 3 labels for better evaluation data later
+    classification: Literal["CAN_ANSWER", "PARTIAL", "NO_MATCH"] = Field(
+        description="The relevance classification of the document relative to the question."
+    )
 
 class RelevanceChecker:
-    def __init__(self):
-        # Initialize the WatsonX ModelInference
-        self.model = ModelInference(
-            model_id="ibm/granite-3-3-8b-instruct",
-            credentials=credentials,
-            project_id="skills-network",
-            params={"temperature": 0, "max_tokens": 10},
-        )
+    def __init__(self, model: Optional[ChatWatsonx] = None):
+        if model:
+            self.model=model
+        else:
+            self.model = ChatWatsonx(
+                model_id="ibm/granite-3-3-8b-instruct",
+                url=settings.WATSONX.URL,
+                apikey=settings.WATSONX.APIKEY,
+                project_id=settings.WATSONX.PROJECT_ID,
+                params={"temperature": 0, "max_new_tokens": 10}
+            )
 
-    def check(self, question: str, retriever, k=3) -> str:
+        self.structured_llm=self.model.with_structured_output(RelevanceGrade)
+
+    def check(self, question: str, retriever, k:int) -> str:
         """
         1. Retrieve the top-k document chunks from the global retriever.
         2. Combine them into a single text string.
         3. Pass that text + question to the LLM for classification.
+        4. Grades document relevance using structured output.
 
         Returns: "CAN_ANSWER", "PARTIAL", or "NO_MATCH".
         """
@@ -47,8 +53,6 @@ class RelevanceChecker:
 
         **Instructions:**
         - Classify how well the document content addresses the user's question.
-        - Respond with only one of the following labels: CAN_ANSWER, PARTIAL, NO_MATCH.
-        - Do not include any additional text or explanation.
 
         **Labels:**
         1) "CAN_ANSWER": The passages contain enough explicit information to fully answer the question.
@@ -59,41 +63,15 @@ class RelevanceChecker:
 
         **Question:** {question}
         **Passages:** {document_content}
-
-        **Respond ONLY with one of the following labels: CAN_ANSWER, PARTIAL, NO_MATCH**
         """
 
         # Call the LLM
         try:
-            response = self.model.chat(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt  # Changed from list to string
-                    }
-                ]
-            )
+            result = self.structured_llm.invoke(prompt)
+            logger.info(f"Relevance Classification: {result.classification}")
+            print(f"Checker response: {result.classification}")
+            return result.classification
+
         except Exception as e:
-            logger.error(f"Error during model inference: {e}")
+            logger.error(f"Relevance check failed: {e}")
             return "NO_MATCH"
-
-        # Extract the content from the response
-        try:
-            llm_response = response['choices'][0]['message']['content'].strip().upper()
-            logger.debug(f"LLM response: {llm_response}")
-        except (IndexError, KeyError) as e:
-            logger.error(f"Unexpected response structure: {e}")
-            return "NO_MATCH"
-
-        print(f"Checker response: {llm_response}")
-
-        # Validate the response
-        valid_labels = {"CAN_ANSWER", "PARTIAL", "NO_MATCH"}
-        if llm_response not in valid_labels:
-            logger.debug("LLM did not respond with a valid label. Forcing 'NO_MATCH'.")
-            classification = "NO_MATCH"
-        else:
-            logger.debug(f"Classification recognized as '{llm_response}'.")
-            classification = llm_response
-
-        return classification

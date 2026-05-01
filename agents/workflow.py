@@ -1,11 +1,10 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Dict
-from .research_agent import ResearchAgent
-from .verification_agent import VerificationAgent
-from .relevance_checker import RelevanceChecker
+from agents import ResearchAgent, VerificationAgent, RelevanceChecker
 from langchain.schema import Document
 from langchain.retrievers import EnsembleRetriever
-import logging
+from config import settings
+from utils import logger
 
 logger = logging.getLogger(__name__)
 
@@ -16,6 +15,7 @@ class AgentState(TypedDict):
     verification_report: str
     is_relevant: bool
     retriever: EnsembleRetriever
+    retries: int # Safeguard against infinite loops
 
 class AgentWorkflow:
     def __init__(self):
@@ -59,7 +59,7 @@ class AgentWorkflow:
         classification = self.relevance_checker.check(
             question=state["question"], 
             retriever=retriever, 
-            k=20
+            k=settings.RETRIEVAL.VECTOR_SEARCH_K
         )
 
         if classification == "CAN_ANSWER":
@@ -96,7 +96,8 @@ class AgentWorkflow:
                 draft_answer="",
                 verification_report="",
                 is_relevant=False,
-                retriever=retriever
+                retriever=retriever,
+                retries=0
             )
             
             final_state = self.compiled_workflow.invoke(initial_state)
@@ -118,11 +119,24 @@ class AgentWorkflow:
     def _verification_step(self, state: AgentState) -> Dict:
         print("[DEBUG] Entered _verification_step. Verifying the draft answer...")
         result = self.verifier.check(state["draft_answer"], state["documents"])
+        report = result["verification_report"]
         print("[DEBUG] VerificationAgent returned a verification report.")
-        return {"verification_report": result["verification_report"]}
+        # Determine if we need to increment the counter
+        new_retries = state.get("retries", 0)
+        if "Supported: NO" in report or "Relevant: NO" in report:
+            new_retries += 1
+        return {
+            "verification_report": report,
+            "retries": new_retries # State is updated by returning the new value
+        }
     
     def _decide_next_step(self, state: AgentState) -> str:
         verification_report = state["verification_report"]
+        retries = state.get("retries", 0)
+        print(f"[DEBUG] _decide_next_step actual safeguard: Stop after 3 failed attempts, retries='{retries}'")
+        if retries >= 3:
+            logger.warning("Max retries reached. Stopping to avoid infinite loop.")
+            return "end"
         print(f"[DEBUG] _decide_next_step with verification_report='{verification_report}'")
         if "Supported: NO" in verification_report or "Relevant: NO" in verification_report:
             logger.info("[DEBUG] Verification indicates re-research needed.")

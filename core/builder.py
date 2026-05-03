@@ -1,18 +1,18 @@
 from langchain_community.vectorstores import Chroma
-from langchain_openai import OpenAIEmbeddings
+# from langchain_openai import OpenAIEmbeddings
 from ibm_watsonx_ai.metanames import EmbedTextParamsMetaNames
 from langchain_ibm import WatsonxEmbeddings
 from langchain_community.retrievers import BM25Retriever
-from langchain.retrievers import EnsembleRetriever
+from langchain_classic.retrievers import EnsembleRetriever
 from config.settings import settings
-from utils.logging_config import logger
+from utils import logger
 
 class RetrieverBuilder:
     def __init__(self):
         """Initialize the retriever builder with embeddings."""
         embed_params = {
-            EmbedTextParamsMetaNames.RETRIEVAL.TRUNCATE_INPUT_TOKENS: 3,
-            EmbedTextParamsMetaNames.RETRIEVAL.RETURN_OPTIONS: {"input_text": True},
+            EmbedTextParamsMetaNames.TRUNCATE_INPUT_TOKENS: 3,
+            EmbedTextParamsMetaNames.RETURN_OPTIONS: {"input_text": True},
         }
 
         watsonx_embedding = WatsonxEmbeddings(

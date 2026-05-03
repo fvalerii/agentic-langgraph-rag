@@ -10,7 +10,6 @@
 ![Gradio](https://img.shields.io/badge/Gradio-Interface-FF9D00?logo=gradio&logoColor=white)
 ![Docling](https://img.shields.io/badge/Docling-PDF%20Parsing-FFD43B?logo=python&logoColor=black)
 
----
 
 ![Multi-Agentic RAG](project-overview.jpg)
 *Figure 1: High-fidelity multi-agent workflow featuring autonomous routing and verification loops.*

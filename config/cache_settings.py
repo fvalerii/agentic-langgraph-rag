@@ -1,5 +1,5 @@
 from pydantic import BaseModel
 
 class CacheSettings(BaseModel):
-    DIR: str = "document_cache"
-    EXPIRE_DAYS: int = 7
+    CACHE_DIR: str = "document_cache"
+    CACHE_EXPIRE_DAYS: int = 7

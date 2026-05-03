@@ -1,6 +1,7 @@
 # 🕵️ Agentic Q&A System: LangGraph & Multi-Agent Orchestration
 ### *Autonomous RAG Ecosystem with Self-Correction & Reflection Loops*
 
+
 ![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
 ![LangGraph](https://img.shields.io/badge/LangGraph-Stateful%20Orchestration-000000?logo=langchain&logoColor=white)
 ![LangChain](https://img.shields.io/badge/LangChain-Framework-1C3C3C?logo=langchain&logoColor=white)
@@ -9,10 +10,12 @@
 ![Gradio](https://img.shields.io/badge/Gradio-Interface-FF9D00?logo=gradio&logoColor=white)
 ![Docling](https://img.shields.io/badge/Docling-PDF%20Parsing-FFD43B?logo=python&logoColor=black)
 
+---
 
-![Multi-Agentic RAG](project-overview.jpg)
+![Multi-Agentic RAG](images/project-overview.jpg)
 *Figure 1: High-fidelity multi-agent workflow featuring autonomous routing and verification loops.*
 
+---
 
 ## 📋 Project Objective
 This system represents a sophisticated evolution in document intelligence, moving beyond linear retrieval to an autonomous multi-agent framework. It automates the extraction of verified knowledge from complex documents by leveraging LangGraph for stateful orchestration and IBM Watsonx for high-reasoning synthesis.

@@ -1,39 +1,25 @@
-from ibm_watsonx_ai.foundation_models import ModelInference
-from ibm_watsonx_ai import Credentials, APIClient
-from typing import Dict, List
-from langchain.schema import Document
-from config.settings import settings
-import json
-
-credentials = Credentials(
-                   url = "https://us-south.ml.cloud.ibm.com",
-                  )
-client = APIClient(credentials)
+from typing import List, Dict
+from langchain_ibm import ChatWatsonx
+from langchain_core.documents import Document
+from pydantic import BaseModel, Field
+from config import settings
+from utils import logger
 
 
 class ResearchAgent:
-    def __init__(self):
-        """
-        Initialize the research agent with the IBM WatsonX ModelInference.
-        """
-        # Initialize the WatsonX ModelInference
-        print("Initializing ResearchAgent with IBM WatsonX ModelInference...")
-        self.model = ModelInference(
-            model_id="meta-llama/llama-3-2-90b-vision-instruct", 
-            credentials=credentials,
-            project_id="skills-network",
+    def __init__(self, model: ChatWatsonx = None):
+        logger.info("Initializing ResearchAgent with IBM ChatWatsonx...")
+        self.model = model or ChatWatsonx(
+            model_id="meta-llama/llama-4-maverick-17b-128e-instruct-fp8", 
+            url=settings.WATSONX.URL,
+            apikey=settings.WATSONX.APIKEY, 
+            project_id=settings.WATSONX.PROJECT_ID,
             params={
-                "max_tokens": 300,            # Adjust based on desired response length
+                "max_new_tokens": 600,            # Adjust based on desired response length
                 "temperature": 0.3,           # Controls randomness; lower values make output more deterministic
             }
         )
-        print("ModelInference initialized successfully.")
-
-    def sanitize_response(self, response_text: str) -> str:
-        """
-        Sanitize the LLM's response by stripping unnecessary whitespace.
-        """
-        return response_text.strip()
+        logger.info("ChatModel initialized successfully.")
 
     def generate_prompt(self, question: str, context: str) -> str:
         """
@@ -43,62 +29,43 @@ class ResearchAgent:
         You are an AI assistant designed to provide precise and factual answers based on the given context.
 
         **Instructions:**
-        - Answer the following question using only the provided context.
+        - Answer the following question using ONLY the provided context.
         - Be clear, concise, and factual.
-        - Return as much information as you can get from the context.
-        
-        **Question:** {question}
-        **Context:**
-        {context}
+        - If the context does not contain the answer, state that you cannot answer based on the documents.
+        - Extract as much relevant detail as possible from the context.
 
-        **Provide your answer below:**
+        **Question:** {question}
+        **Context:** {context}
+
+        **Answer:**
         """
         return prompt
 
     def generate(self, question: str, documents: List[Document]) -> Dict:
         """
-        Generate an initial answer using the provided documents.
+        Generate the draft answer using the provided document chunks.
         """
-        print(f"ResearchAgent.generate called with question='{question}' and {len(documents)} documents.")
+        logger.info(f"ResearchAgent called with question='{question}' and {len(documents)} documents.")
 
-        # Combine the top document contents into one string
+        # Combine document contents
         context = "\n\n".join([doc.page_content for doc in documents])
-        print(f"Combined context length: {len(context)} characters.")
+        logger.debug(f"Context size for generation: {len(context)} characters.")
 
         # Create a prompt for the LLM
         prompt = self.generate_prompt(question, context)
-        print("Prompt created for the LLM.")
+        logger.info("Prompt created for the LLM.")
 
         # Call the LLM to generate the answer
         try:
-            print("Sending prompt to the model...")
-            response = self.model.chat(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": prompt  # Ensure content is a string
-                    }
-                ]
-            )
-            print("LLM response received.")
+            logger.info("Sending prompt to the model...")
+            response = self.model.invoke(prompt)
+            logger.info("LLM response received.")
+
+            draft_answer = response.content.strip() if response.content else "No response generated."
+            logger.info(f"Generated answer: {draft_answer}")
+
+            return draft_answer
+
         except Exception as e:
-            print(f"Error during model inference: {e}")
+            logger.error(f"Error during model inference: {e}")
             raise RuntimeError("Failed to generate answer due to a model error.") from e
-
-        # Extract and process the LLM's response
-        try:
-            llm_response = response['choices'][0]['message']['content'].strip()
-            print(f"Raw LLM response:\n{llm_response}")
-        except (IndexError, KeyError) as e:
-            print(f"Unexpected response structure: {e}")
-            llm_response = "I cannot answer this question based on the provided documents."
-
-        # Sanitize the response
-        draft_answer = self.sanitize_response(llm_response) if llm_response else "I cannot answer this question based on the provided documents."
-
-        print(f"Generated answer: {draft_answer}")
-
-        return {
-            "draft_answer": draft_answer,
-            "context_used": context
-        }

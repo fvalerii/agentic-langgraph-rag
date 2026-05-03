@@ -12,17 +12,15 @@ class RelevanceGrade(BaseModel):
     )
 
 class RelevanceChecker:
-    def __init__(self, model: Optional[ChatWatsonx] = None):
-        if model:
-            self.model=model
-        else:
-            self.model = ChatWatsonx(
-                model_id="ibm/granite-3-3-8b-instruct",
-                url=settings.WATSONX.URL,
-                apikey=settings.WATSONX.APIKEY,
-                project_id=settings.WATSONX.PROJECT_ID,
-                params={"temperature": 0, "max_new_tokens": 10}
-            )
+    def __init__(self, model: ChatWatsonx = None):
+        logger.info("Initializing RelevanceChecker with IBM ChatWatsonx...")
+        self.model = model or ChatWatsonx(
+            model_id="mistral-large-2512",
+            url=settings.WATSONX.URL,
+            apikey=settings.WATSONX.APIKEY,
+            project_id=settings.WATSONX.PROJECT_ID,
+            params={"temperature": 0, "max_new_tokens": 10}
+        )
 
         self.structured_llm=self.model.with_structured_output(RelevanceGrade)
 
@@ -69,7 +67,7 @@ class RelevanceChecker:
         try:
             result = self.structured_llm.invoke(prompt)
             logger.info(f"Relevance Classification: {result.classification}")
-            print(f"Checker response: {result.classification}")
+            logger.info(f"Checker response: {result.classification}")
             return result.classification
 
         except Exception as e:

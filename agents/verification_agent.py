@@ -27,7 +27,7 @@ class VerificationAgent:
             }
         )
         self.structured_llm = self.model.with_structured_output(VerificationReport)
-        print("ChatModel initialized successfully.")
+        logger.info("ChatModel initialized successfully.")
 
     def generate_prompt(self, answer: str, context: str) -> str:
         return f"""

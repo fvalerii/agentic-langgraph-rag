@@ -1,8 +1,8 @@
 from langgraph.graph import StateGraph, END
 from typing import TypedDict, List, Dict
 from agents import ResearchAgent, VerificationAgent, RelevanceChecker
-from langchain.schema import Document
-from langchain.retrievers import EnsembleRetriever
+from langchain_core.documents import Document
+from langchain_classic.retrievers import EnsembleRetriever
 from config import settings
 from utils import logger
 
@@ -100,6 +100,7 @@ class AgentWorkflow:
         }
 
     def _decide_next_step(self, state: AgentState) -> str:
+        verification_report = state.get("verification_report")
         raw = state.get("raw_report", {})
         retries = state.get("retries", 0)
         

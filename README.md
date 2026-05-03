@@ -1,7 +1,18 @@
 # 🕵️ Agentic Q&A System: LangGraph & Multi-Agent Orchestration
 ### *Autonomous RAG Ecosystem with Self-Correction & Reflection Loops*
 
-![Multi-Agentic RAG](images/project-overview.jpg)
+
+![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python&logoColor=white)
+![LangGraph](https://img.shields.io/badge/LangGraph-Stateful%20Orchestration-000000?logo=langchain&logoColor=white)
+![LangChain](https://img.shields.io/badge/LangChain-Framework-1C3C3C?logo=langchain&logoColor=white)
+![IBM Watsonx](https://img.shields.io/badge/IBM%20Watsonx-AI%20Foundry-052FAD?logo=ibm&logoColor=white)
+![ChromaDB](https://img.shields.io/badge/ChromaDB-Vector%20Storage-3178C6?logo=databricks&logoColor=white)
+![Gradio](https://img.shields.io/badge/Gradio-Interface-FF9D00?logo=gradio&logoColor=white)
+![Docling](https://img.shields.io/badge/Docling-PDF%20Parsing-FFD43B?logo=python&logoColor=black)
+
+---
+
+![Multi-Agentic RAG](project-overview.jpg)
 *Figure 1: High-fidelity multi-agent workflow featuring autonomous routing and verification loops.*
 
 ---
@@ -20,10 +31,10 @@ The system follows a modular **Orchestrator-Worker** design pattern:
 **🔄 The Multi-Agent Workflow**
 1. **Document Ingestion (Docling):** Converts complex PDFs and DOCX files into structural Markdown to preserve semantic context for chunking.
 2. **Hybrid Retrieval:** An **Ensemble Retriever** combines keyword-based **BM25** with semantic **Vector Search** (ChromaDB) to ensure maximum recall accuracy.
-3. **Synthesis Engine:** A lead agent generates context-grounded responses using Llama-3.2-90B.
+3. **Synthesis Engine:** A lead agent generates context-grounded responses using Llama-4-Maverick-17B.
 4. **Verification Loop:** A dedicated node audits the synthesis against the original context using Granite-4, providing a detailed verification report.
 
-![Gradio Interface Preview](images/gradio_ui.png)
+![Gradio Interface Preview](images/docchat.jpg)
 *Figure 2: User interface showing PDF upload and context-grounded chat interaction.*
 
 ---
@@ -41,8 +52,8 @@ The system follows a modular **Orchestrator-Worker** design pattern:
 
 ### 1. Clone the repository
 ```bash
-git clone [https://github.com/fvalerii/agentic-langchin-rag.git](https://github.com/fvalerii/agentic-langchain-rag.git)
-cd agentic-langhchain-rag
+git clone [https://github.com/fvalerii/agentic-langchain-rag.git](https://github.com/fvalerii/agentic-langchain-rag.git)
+cd agentic-langchain-rag
 ```
 
 ### 2. Set-up Credential
@@ -83,13 +94,10 @@ The system uses a sophisticated `DocumentProcessor` to manage resources and spee
 
 ## 💻 Tech Stack: Agentic Backend
 
-### 🏢 Version A: Enterprise Watsonx (LTS)
-Optimized for the 2026 IBM Watsonx ecosystem with high-fidelity orchestration.
-
 - **Orchestration:** `LangGraph` & `LangChain`
-- **Synthesis LLM:** `meta-llama/llama-3-2-90b-vision-instruct` 
+- **Relevance LLM:** `mistral-large-2512`
+- **Synthesis LLM:** `meta-llama/llama-4-maverick-17b-128e-instruct-fp8` 
 - **Verification LLM:** `ibm/granite-4-h-small`
-- **Routing LLM:** `ibm/granite-3-3-8b-instruct`
 - **Embeddings:** `ibm/slate-125m-english-rtrvr-v2`
 - **Vector Database:** **ChromaDB**
 - **Parsing Engine:** **Docling** (Text-to-Markdown)
@@ -97,4 +105,4 @@ Optimized for the 2026 IBM Watsonx ecosystem with high-fidelity orchestration.
 ---
 
 ##  Credits
-Designed for high-fidelity research and autonomous document analysis.
+Part of the IBM Agentic AI with LangChain and LangGraph curriculum. Designed for high-fidelity research and autonomous document analysis.

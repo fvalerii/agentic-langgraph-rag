@@ -1,0 +1,66 @@
+# -----------------------------
+# 🛡️ SECURITY & CREDENTIALS (CRITICAL)
+# -----------------------------
+.env
+.env.local
+.env.env
+.env.*
+secrets.json
+
+# -----------------------------
+# 🤖 PROJECT SPECIFIC: RAG Databases & Local State
+# -----------------------------
+# Watsonx persistent vector database
+chroma_db/
+chroma_db_watsonx/
+
+# Docling & Processor Caching
+document_cache/
+*.hash
+
+# General database files
+db/
+*.db
+*.sqlite3
+
+data/
+uploads/
+*.pdf
+*.docx
+
+# -----------------------------
+# 📦 UV & DEPENDENCY MANAGEMENT
+# -----------------------------
+.venv/
+.python-version
+.uv/
+
+# -----------------------------
+# 🐍 PYTHON & VIRTUAL ENV
+# -----------------------------
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+
+# -----------------------------
+# 💻 SYSTEM & EDITORS
+# -----------------------------
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# -----------------------------
+# 📈 LOGS
+# -----------------------------
+*.log
+logs/

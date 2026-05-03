@@ -1,16 +1,17 @@
 # /// script
-# requires-python = ">=3.10"
+# requires-python = ">=3.12"
 # dependencies = [
-#     "gradio",
-#     "docling",
-#     "langchain",
-#     "langchain-community",
-#     "langchain-ibm",
-#     "langgraph",
-#     "ibm-watsonx-ai",
-#     "pydantic-settings",
-#     "loguru",
-#     "chromadb",
+#     "gradio==6.14.0",
+#     "docling==2.92.0",
+#     "langchain==1.2.17",
+#     "langchain-community==0.4.1",
+#     "langchain-ibm==1.0.7",
+#     "langgraph==1.1.10",
+#     "ibm-watsonx-ai==1.5.10",
+#     "pydantic-settings==2.14.0",
+#     "loguru==0.7.3",
+#     "chromadb==1.5.8",
+#     "rank-bm25==0.2.2"
 # ]
 # ///
 
@@ -19,10 +20,13 @@ import hashlib
 from typing import List, Dict
 import os
 
+from utils import setup_logging, logger
+# Setup global logging configuration immediately
+setup_logging()
+
 from core import DocumentProcessor, RetrieverBuilder
 from agents import AgentWorkflow
 from config import settings, ALLOWED_TYPES
-from utils import logger
 
 # 1) Define some example data 
 #    (i.e., question + paths to documents relevant to that question).
@@ -191,7 +195,11 @@ def main():
                     retriever=state["retriever"]
                 )
                 
-                return result["draft_answer"], result["verification_report"], state
+                return (
+                    str(result.get("draft_answer", "No answer found.")), 
+                    str(result.get("verification_report", "No report available.")), 
+                    state
+                )
                     
             except Exception as e:
                 logger.error(f"Processing error: {str(e)}")
